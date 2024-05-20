@@ -1,4 +1,3 @@
-
 USE MASTER;
 GO
 DROP DATABASE IF EXISTS EducationalNetwork;
@@ -39,7 +38,10 @@ CREATE TABLE FriendsWith AS EDGE;
 GO
 
 -- Создание таблицы рёбер "Проживает"
-CREATE TABLE LivesIn (city VARCHAR(100)) AS EDGE;
+CREATE TABLE LivesIn (
+    id INT PRIMARY KEY,
+    city VARCHAR(100)
+) AS EDGE;
 GO
 
 -- Создание таблицы рёбер "Рекомендует учебную дисциплину"
@@ -74,7 +76,7 @@ INSERT INTO CourseMates (id, name, major) VALUES
 (7, 'Николай Козлов', 'Литература'),
 (8, 'Татьяна Соколова', 'Искусство'),
 (9, 'Александр Васильев', 'Философия'),
-(10, 'Екатерина Морозова', 'Экономика');
+(10, 'Екатерина Морозова', 'Экономика'),
 (11, 'Иван Сидоров', 'Социология');
 GO
 
@@ -95,77 +97,52 @@ GO
 --4
 -- Заполнение таблицы рёбер "Дружит"
 INSERT INTO FriendsWith ($from_id, $to_id)
-VALUES ((SELECT $node_id FROM Classmates WHERE id = 1),
-        (SELECT $node_id FROM Classmates WHERE id = 2)),
-       ((SELECT $node_id FROM Classmates WHERE id = 3),
-        (SELECT $node_id FROM Classmates WHERE id = 4)),
-       ((SELECT $node_id FROM Classmates WHERE id = 5),
-        (SELECT $node_id FROM Classmates WHERE id = 6)),
-       ((SELECT $node_id FROM Classmates WHERE id = 7),
-        (SELECT $node_id FROM Classmates WHERE id = 8)),
-       ((SELECT $node_id FROM Classmates WHERE id = 9),
-        (SELECT $node_id FROM Classmates WHERE id = 10)),
-       ((SELECT $node_id FROM Classmates WHERE id = 2),
-        (SELECT $node_id FROM Classmates WHERE id = 3)),
-       ((SELECT $node_id FROM Classmates WHERE id = 4),
-        (SELECT $node_id FROM Classmates WHERE id = 5)),
-       ((SELECT $node_id FROM Classmates WHERE id = 6),
-        (SELECT $node_id FROM Classmates WHERE id = 7)),
-       ((SELECT $node_id FROM Classmates WHERE id = 8),
-        (SELECT $node_id FROM Classmates WHERE id = 9)),
-       ((SELECT $node_id FROM Classmates WHERE id = 10),
-        (SELECT $node_id FROM Classmates WHERE id = 1));
+VALUES 
+    ((SELECT $node_id FROM Classmates WHERE id = 1), (SELECT $node_id FROM Classmates WHERE id = 2)),
+    ((SELECT $node_id FROM Classmates WHERE id = 1), (SELECT $node_id FROM Classmates WHERE id = 5)),
+    ((SELECT $node_id FROM Classmates WHERE id = 2), (SELECT $node_id FROM Classmates WHERE id = 3)),
+    ((SELECT $node_id FROM Classmates WHERE id = 3), (SELECT $node_id FROM Classmates WHERE id = 1)),
+    ((SELECT $node_id FROM Classmates WHERE id = 3), (SELECT $node_id FROM Classmates WHERE id = 6)),
+    ((SELECT $node_id FROM Classmates WHERE id = 4), (SELECT $node_id FROM Classmates WHERE id = 2)),
+    ((SELECT $node_id FROM Classmates WHERE id = 5), (SELECT $node_id FROM Classmates WHERE id = 4)),
+    ((SELECT $node_id FROM Classmates WHERE id = 6), (SELECT $node_id FROM Classmates WHERE id = 7)),
+    ((SELECT $node_id FROM Classmates WHERE id = 6), (SELECT $node_id FROM Classmates WHERE id = 8)),
+    ((SELECT $node_id FROM Classmates WHERE id = 8), (SELECT $node_id FROM Classmates WHERE id = 3)),
+	((SELECT $node_id FROM Classmates WHERE id = 9), (SELECT $node_id FROM Classmates WHERE id = 4)),
+	((SELECT $node_id FROM Classmates WHERE id = 9), (SELECT $node_id FROM Classmates WHERE id = 7)),
+	((SELECT $node_id FROM Classmates WHERE id = 10), (SELECT $node_id FROM Classmates WHERE id = 2)),
+	((SELECT $node_id FROM Classmates WHERE id = 10), (SELECT $node_id FROM Classmates WHERE id = 5));
 GO
 
 -- Заполнение таблицы рёбер "Проживает"
-INSERT INTO LivesIn ($from_id, $to_id, city)
-VALUES ((SELECT $node_id FROM CourseMates WHERE id = 1),
-        (SELECT $node_id FROM CourseMates WHERE id = 1), 'Москва'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 2),
-        (SELECT $node_id FROM CourseMates WHERE id = 2), 'Санкт-Петербург'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 3),
-        (SELECT $node_id FROM CourseMates WHERE id = 3), 'Новосибирск'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 4),
-        (SELECT $node_id FROM CourseMates WHERE id = 4), 'Екатеринбург'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 5),
-        (SELECT $node_id FROM CourseMates WHERE id = 5), 'Казань'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 6),
-        (SELECT $node_id FROM CourseMates WHERE id = 6), 'Нижний Новгород'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 7),
-        (SELECT $node_id FROM CourseMates WHERE id = 7), 'Челябинск'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 8),
-        (SELECT $node_id FROM CourseMates WHERE id = 8), 'Самара'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 9),
-        (SELECT $node_id FROM CourseMates WHERE id = 9), 'Омск'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 10),
-        (SELECT $node_id FROM CourseMates WHERE id = 10), 'Ростов-на-Дону');
+INSERT INTO LivesIn ($from_id, $to_id, id, city)
+VALUES 
+    ((SELECT $node_id FROM CourseMates WHERE id = 1), (SELECT $node_id FROM CourseMates WHERE id = 1), 1, 'Москва'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 2), (SELECT $node_id FROM CourseMates WHERE id = 2), 2, 'Санкт-Петербург'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 3), (SELECT $node_id FROM CourseMates WHERE id = 3), 3, 'Новосибирск'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 4), (SELECT $node_id FROM CourseMates WHERE id = 4), 4, 'Екатеринбург'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 5), (SELECT $node_id FROM CourseMates WHERE id = 5), 5, 'Казань'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 6), (SELECT $node_id FROM CourseMates WHERE id = 6), 6, 'Нижний Новгород'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 7), (SELECT $node_id FROM CourseMates WHERE id = 7), 7, 'Челябинск'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 8), (SELECT $node_id FROM CourseMates WHERE id = 8), 8, 'Самара'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 9), (SELECT $node_id FROM CourseMates WHERE id = 9), 9, 'Омск'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 10), (SELECT $node_id FROM CourseMates WHERE id = 10), 10, 'Ростов-на-Дону');
 GO
 
 -- Заполнение таблицы рёбер "Рекомендует учебную дисциплину"
 INSERT INTO RecommendsSubject ($from_id, $to_id, recommendation_date)
-VALUES ((SELECT $node_id FROM CourseMates WHERE id = 1),
-        (SELECT $node_id FROM Subjects WHERE id = 1), '2023-01-01'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 2),
-        (SELECT $node_id FROM Subjects WHERE id = 2), '2023-02-01'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 3),
-        (SELECT $node_id FROM Subjects WHERE id = 3), '2023-03-01'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 4),
-        (SELECT $node_id FROM Subjects WHERE id = 4), '2023-04-01'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 5),
-        (SELECT $node_id FROM Subjects WHERE id = 5), '2023-05-01'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 6),
-        (SELECT $node_id FROM Subjects WHERE id = 6), '2023-06-01'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 7),
-        (SELECT $node_id FROM Subjects WHERE id = 7), '2023-07-01'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 8),
-        (SELECT $node_id FROM Subjects WHERE id = 8), '2023-08-01'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 9),
-        (SELECT $node_id FROM Subjects WHERE id = 9), '2023-09-01'),
-       ((SELECT $node_id FROM CourseMates WHERE id = 10),
-        (SELECT $node_id FROM Subjects WHERE id = 10), '2023-10-01');
+VALUES 
+    ((SELECT $node_id FROM CourseMates WHERE id = 1), (SELECT $node_id FROM Subjects WHERE id = 1), '2023-01-01'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 2), (SELECT $node_id FROM Subjects WHERE id = 2), '2023-02-01'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 3), (SELECT $node_id FROM Subjects WHERE id = 3), '2023-03-01'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 4), (SELECT $node_id FROM Subjects WHERE id = 4), '2023-04-01'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 5), (SELECT $node_id FROM Subjects WHERE id = 5), '2023-05-01'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 6), (SELECT $node_id FROM Subjects WHERE id = 6), '2023-06-01'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 7), (SELECT $node_id FROM Subjects WHERE id = 7), '2023-07-01'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 8), (SELECT $node_id FROM Subjects WHERE id = 8), '2023-08-01'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 9), (SELECT $node_id FROM Subjects WHERE id = 9), '2023-09-01'),
+    ((SELECT $node_id FROM CourseMates WHERE id = 10), (SELECT $node_id FROM Subjects WHERE id = 10), '2023-10-01');
 GO
-
-
 
 --5
 -- Запрос 1: Найти всех одноклассников, которые дружат с Иваном Ивановым
@@ -219,7 +196,6 @@ WHERE MATCH(SHORTEST_PATH(Person1(-(rs)->Subject)+))
   AND Person1.name = 'Андрей Иванов';
 GO
 
-
 --ВИЗУАЛИЗАЦИЯ ГРАФА В POWER BI С ПОМОЩЬЮ FORCE-DIRECTED GRAPH
 SELECT @@SERVERNAME
 -- Сервер:DESKTOP-LVK19RB
@@ -251,6 +227,9 @@ WHERE MATCH (CM-(RS)->S);
 SELECT CM.id AS CourseMateId,
        CM.name AS CourseMateName,
        CONCAT(N'coursemate', CM.id) AS [CourseMate image name],
-       LI.city AS City
+       LI.city AS City,
+       CONCAT(N'city', LI.id) AS [City image name]
 FROM CourseMates AS CM
 JOIN LivesIn AS LI ON CM.$node_id = LI.$from_id;
+GO
+
