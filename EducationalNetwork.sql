@@ -1,181 +1,256 @@
+
 USE MASTER;
 GO
-
 DROP DATABASE IF EXISTS EducationalNetwork;
 GO
-
 CREATE DATABASE EducationalNetwork;
 GO
-
 USE EducationalNetwork;
 GO
 
-CREATE TABLE Students (
+--1
+-- Создание таблицы узлов "Одноклассники"
+CREATE TABLE Classmates (
     id INT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    grade INT NOT NULL
+    age INT
 ) AS NODE;
+GO
 
-CREATE TABLE Teachers (
+-- Создание таблицы узлов "Сокурсники"
+CREATE TABLE CourseMates (
     id INT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    subject VARCHAR(50) NOT NULL
+    major VARCHAR(100)
 ) AS NODE;
+GO
 
+-- Создание таблицы узлов "Учебные дисциплины"
 CREATE TABLE Subjects (
     id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    description TEXT
+    credits INT
 ) AS NODE;
+GO
 
-CREATE TABLE Courses (
-    id INT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    subject_id INT REFERENCES Subjects(id)
-) AS NODE;
+--2
+-- Создание таблицы рёбер "Дружит"
+CREATE TABLE FriendsWith AS EDGE;
+GO
 
--- Создание таблиц ребер
-CREATE TABLE Enrolled AS EDGE;
-CREATE TABLE Teaches AS EDGE;
-CREATE TABLE ReceivedGrade (
-    grade DECIMAL(4,2),
-    date DATE
+-- Создание таблицы рёбер "Проживает"
+CREATE TABLE LivesIn (city VARCHAR(100)) AS EDGE;
+GO
+
+-- Создание таблицы рёбер "Рекомендует учебную дисциплину"
+CREATE TABLE RecommendsSubject (
+    recommendation_date DATE
 ) AS EDGE;
+GO
 
--- Добавление учеников
-INSERT INTO Students (id, name, grade) VALUES
-(1, 'Alice', 10),
-(2, 'Bob', 11),
-(3, 'Charlie', 9),
-(4, 'David', 10),
-(5, 'Eve', 11),
-(6, 'Frank', 10),
-(7, 'Grace', 11),
-(8, 'Henry', 9),
-(9, 'Ivy', 10),
-(10, 'Jack', 11);
+--3
+-- Заполнение таблицы Одноклассники
+INSERT INTO Classmates (id, name, age) VALUES
+(1, 'Иван Иванов', 17),
+(2, 'Петр Петров', 17),
+(3, 'Мария Сидорова', 16),
+(4, 'Анна Кузнецова', 17),
+(5, 'Алексей Смирнов', 16),
+(6, 'Ольга Павлова', 17),
+(7, 'Дмитрий Козлов', 17),
+(8, 'Елена Соколова', 16),
+(9, 'Сергей Васильев', 16),
+(10, 'Юлия Морозова', 17);
+GO
 
--- Добавление учителей
-INSERT INTO Teachers (id, name, subject) VALUES
-(1, 'Mr. Smith', 'Math'),
-(2, 'Ms. Johnson', 'Science'),
-(3, 'Dr. Brown', 'History'),
-(4, 'Mrs. White', 'Literature'),
-(5, 'Prof. Green', 'Physics'),
-(6, 'Dr. Lee', 'Chemistry'),
-(7, 'Ms. Black', 'Art'),
-(8, 'Mr. Gray', 'Music'),
-(9, 'Mrs. Brown', 'Geography'),
-(10, 'Prof. Blue', 'Economics');
+-- Заполнение таблицы Сокурсники
+INSERT INTO CourseMates (id, name, major) VALUES
+(1, 'Андрей Иванов', 'Компьютерные науки'),
+(2, 'Василий Петров', 'Математика'),
+(3, 'Наталья Сидорова', 'Физика'),
+(4, 'Ирина Кузнецова', 'Химия'),
+(5, 'Максим Смирнов', 'Биология'),
+(6, 'Светлана Павлова', 'История'),
+(7, 'Николай Козлов', 'Литература'),
+(8, 'Татьяна Соколова', 'Искусство'),
+(9, 'Александр Васильев', 'Философия'),
+(10, 'Екатерина Морозова', 'Экономика');
+(11, 'Иван Сидоров', 'Социология');
+GO
 
--- Добавление предметов
-INSERT INTO Subjects (id, name, description) VALUES
-(1, 'Mathematics', 'Study of numbers, quantity, and space'),
-(2, 'Science', 'Study of the natural world'),
-(3, 'History', 'Study of past events and civilizations'),
-(4, 'Literature', 'Study of written works'),
-(5, 'Physics', 'Study of matter and energy'),
-(6, 'Chemistry', 'Study of substances and their properties'),
-(7, 'Art', 'Study of visual arts and creative expression'),
-(8, 'Music', 'Study of sound and musical composition'),
-(9, 'Geography', 'Study of Earth''s landscapes, environments, and the relationships between people and their environments'),
-(10, 'Economics', 'Study of production, distribution, and consumption of goods and services');
+-- Заполнение таблицы Учебные дисциплины
+INSERT INTO Subjects (id, name, credits) VALUES
+(1, 'Алгебра', 5),
+(2, 'Геометрия', 5),
+(3, 'Физика', 4),
+(4, 'Химия', 4),
+(5, 'Биология', 4),
+(6, 'История', 3),
+(7, 'Литература', 3),
+(8, 'Искусство', 2),
+(9, 'Философия', 3),
+(10, 'Экономика', 4);
+GO
 
--- Добавление курсов
-INSERT INTO Courses (id, name, description, subject_id) VALUES
-(1, 'Algebra I', 'Introduction to algebraic concepts', 1),
-(2, 'Biology', 'Study of living organisms', 2),
-(3, 'World History', 'Overview of world civilizations', 3),
-(4, 'American Literature', 'Study of American literary works', 4),
-(5, 'Mechanics', 'Study of motion and forces', 5),
-(6, 'Chemical Reactions', 'Study of chemical processes', 6),
-(7, 'Art History', 'Study of art movements and styles', 7),
-(8, 'Music Theory', 'Study of musical structure and notation', 8),
-(9, 'Physical Geography', 'Study of Earth''s natural environment', 9),
-(10, 'Microeconomics', 'Study of individual economic behavior', 10);
+--4
+-- Заполнение таблицы рёбер "Дружит"
+INSERT INTO FriendsWith ($from_id, $to_id)
+VALUES ((SELECT $node_id FROM Classmates WHERE id = 1),
+        (SELECT $node_id FROM Classmates WHERE id = 2)),
+       ((SELECT $node_id FROM Classmates WHERE id = 3),
+        (SELECT $node_id FROM Classmates WHERE id = 4)),
+       ((SELECT $node_id FROM Classmates WHERE id = 5),
+        (SELECT $node_id FROM Classmates WHERE id = 6)),
+       ((SELECT $node_id FROM Classmates WHERE id = 7),
+        (SELECT $node_id FROM Classmates WHERE id = 8)),
+       ((SELECT $node_id FROM Classmates WHERE id = 9),
+        (SELECT $node_id FROM Classmates WHERE id = 10)),
+       ((SELECT $node_id FROM Classmates WHERE id = 2),
+        (SELECT $node_id FROM Classmates WHERE id = 3)),
+       ((SELECT $node_id FROM Classmates WHERE id = 4),
+        (SELECT $node_id FROM Classmates WHERE id = 5)),
+       ((SELECT $node_id FROM Classmates WHERE id = 6),
+        (SELECT $node_id FROM Classmates WHERE id = 7)),
+       ((SELECT $node_id FROM Classmates WHERE id = 8),
+        (SELECT $node_id FROM Classmates WHERE id = 9)),
+       ((SELECT $node_id FROM Classmates WHERE id = 10),
+        (SELECT $node_id FROM Classmates WHERE id = 1));
+GO
 
+-- Заполнение таблицы рёбер "Проживает"
+INSERT INTO LivesIn ($from_id, $to_id, city)
+VALUES ((SELECT $node_id FROM CourseMates WHERE id = 1),
+        (SELECT $node_id FROM CourseMates WHERE id = 1), 'Москва'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 2),
+        (SELECT $node_id FROM CourseMates WHERE id = 2), 'Санкт-Петербург'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 3),
+        (SELECT $node_id FROM CourseMates WHERE id = 3), 'Новосибирск'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 4),
+        (SELECT $node_id FROM CourseMates WHERE id = 4), 'Екатеринбург'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 5),
+        (SELECT $node_id FROM CourseMates WHERE id = 5), 'Казань'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 6),
+        (SELECT $node_id FROM CourseMates WHERE id = 6), 'Нижний Новгород'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 7),
+        (SELECT $node_id FROM CourseMates WHERE id = 7), 'Челябинск'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 8),
+        (SELECT $node_id FROM CourseMates WHERE id = 8), 'Самара'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 9),
+        (SELECT $node_id FROM CourseMates WHERE id = 9), 'Омск'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 10),
+        (SELECT $node_id FROM CourseMates WHERE id = 10), 'Ростов-на-Дону');
+GO
 
-
--- Добавление отношений "ученик записан на курс"
-INSERT INTO Enrolled VALUES 
-((SELECT $node_id FROM Students WHERE id = 1), (SELECT $node_id FROM Courses WHERE id = 1)),
-((SELECT $node_id FROM Students WHERE id = 2), (SELECT $node_id FROM Courses WHERE id = 2)),
-((SELECT $node_id FROM Students WHERE id = 3), (SELECT $node_id FROM Courses WHERE id = 3)),
-((SELECT $node_id FROM Students WHERE id = 4), (SELECT $node_id FROM Courses WHERE id = 4)),
-((SELECT $node_id FROM Students WHERE id = 5), (SELECT $node_id FROM Courses WHERE id = 1)),
-((SELECT $node_id FROM Students WHERE id = 5), (SELECT $node_id FROM Courses WHERE id = 3)),
-((SELECT $node_id FROM Students WHERE id = 6), (SELECT $node_id FROM Courses WHERE id = 4)),
-((SELECT $node_id FROM Students WHERE id = 7), (SELECT $node_id FROM Courses WHERE id = 5)),
-((SELECT $node_id FROM Students WHERE id = 8), (SELECT $node_id FROM Courses WHERE id = 6)),
-((SELECT $node_id FROM Students WHERE id = 9), (SELECT $node_id FROM Courses WHERE id = 7)),
-((SELECT $node_id FROM Students WHERE id = 10), (SELECT $node_id FROM Courses WHERE id = 8));
-
--- Добавление отношений "ученик получил оценку за курс"
-INSERT INTO ReceivedGrade VALUES 
-((SELECT $node_id FROM Students WHERE id = 1), (SELECT $node_id FROM Courses WHERE id = 1), 4.5, '2024-05-10'),
-((SELECT $node_id FROM Students WHERE id = 2), (SELECT $node_id FROM Courses WHERE id = 2), 3.8, '2024-05-12'),
-((SELECT $node_id FROM Students WHERE id = 3), (SELECT $node_id FROM Courses WHERE id = 3), 4.2, '2024-05-15'),
-((SELECT $node_id FROM Students WHERE id = 4), (SELECT $node_id FROM Courses WHERE id = 4), 4.0, '2024-05-18'),
-((SELECT $node_id FROM Students WHERE id = 5), (SELECT $node_id FROM Courses WHERE id = 1), 4.7, '2024-05-20'),
-((SELECT $node_id FROM Students WHERE id = 5), (SELECT $node_id FROM Courses WHERE id = 3), 4.4, '2024-05-22'),
-((SELECT $node_id FROM Students WHERE id = 6), (SELECT $node_id FROM Courses WHERE id = 4), 4.6, '2024-05-25'),
-((SELECT $node_id FROM Students WHERE id = 7), (SELECT $node_id FROM Courses WHERE id = 5), 4.8, '2024-05-28'),
-((SELECT $node_id FROM Students WHERE id = 8), (SELECT $node_id FROM Courses WHERE id = 6), 4.3, '2024-05-30'),
-((SELECT $node_id FROM Students WHERE id = 9), (SELECT $node_id FROM Courses WHERE id = 7), 3.9, '2024-06-01'),
-((SELECT $node_id FROM Students WHERE id = 10), (SELECT $node_id FROM Courses WHERE id = 8), 4.1, '2024-06-03');
-
--- Добавление отношений "учитель преподает предмет"
-INSERT INTO Teaches VALUES
-((SELECT $node_id FROM Teachers WHERE id = 1), (SELECT $node_id FROM Subjects WHERE id = 1)),
-((SELECT $node_id FROM Teachers WHERE id = 2), (SELECT $node_id FROM Subjects WHERE id = 2)),
-((SELECT $node_id FROM Teachers WHERE id = 3), (SELECT $node_id FROM Subjects WHERE id = 3)),
-((SELECT $node_id FROM Teachers WHERE id = 4), (SELECT $node_id FROM Subjects WHERE id = 4)),
-((SELECT $node_id FROM Teachers WHERE id = 5), (SELECT $node_id FROM Subjects WHERE id = 5)),
-((SELECT $node_id FROM Teachers WHERE id = 6), (SELECT $node_id FROM Subjects WHERE id = 6)),
-((SELECT $node_id FROM Teachers WHERE id = 7), (SELECT $node_id FROM Subjects WHERE id = 7)),
-((SELECT $node_id FROM Teachers WHERE id = 8), (SELECT $node_id FROM Subjects WHERE id = 8)),
-((SELECT $node_id FROM Teachers WHERE id = 9), (SELECT $node_id FROM Subjects WHERE id = 9)),
-((SELECT $node_id FROM Teachers WHERE id = 10), (SELECT $node_id FROM Subjects WHERE id = 10));
-
-
-
--- Поиск всех студентов, записанных на курс "Алгебра I"
-SELECT s.name AS StudentName, c.name AS CourseName
-FROM Students s, Enrolled e, Courses c
-WHERE MATCH(s-(e)->c)
-  AND c.name = 'Algebra I';
-
-  -- Поиск всех учителей, которые преподают предмет "Математика"
-SELECT t.name AS TeacherName, sub.name AS SubjectName
-FROM Teachers t, Teaches te, Subjects sub
-WHERE MATCH(t-(te)->sub)
-  AND sub.name = 'Mathematics';
-
-  -- Поиск всех студентов, получивших оценку выше 4.0 по любому курсу
-SELECT s.name AS StudentName, c.name AS CourseName, g.grade
-FROM Students s, ReceivedGrade g, Courses c
-WHERE MATCH(s-(g)->c)
-  AND g.grade > 4.0;
-
-  -- Поиск кратчайшего пути между студентом "Alice" и курсом "Алгебра I"
-SELECT s.name AS StudentName, c.name AS CourseName
-FROM Students s, Enrolled e, Courses c
-WHERE MATCH(s-(e)->c)
-  AND s.name = 'Alice'
-  AND c.name = 'Algebra I';
+-- Заполнение таблицы рёбер "Рекомендует учебную дисциплину"
+INSERT INTO RecommendsSubject ($from_id, $to_id, recommendation_date)
+VALUES ((SELECT $node_id FROM CourseMates WHERE id = 1),
+        (SELECT $node_id FROM Subjects WHERE id = 1), '2023-01-01'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 2),
+        (SELECT $node_id FROM Subjects WHERE id = 2), '2023-02-01'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 3),
+        (SELECT $node_id FROM Subjects WHERE id = 3), '2023-03-01'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 4),
+        (SELECT $node_id FROM Subjects WHERE id = 4), '2023-04-01'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 5),
+        (SELECT $node_id FROM Subjects WHERE id = 5), '2023-05-01'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 6),
+        (SELECT $node_id FROM Subjects WHERE id = 6), '2023-06-01'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 7),
+        (SELECT $node_id FROM Subjects WHERE id = 7), '2023-07-01'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 8),
+        (SELECT $node_id FROM Subjects WHERE id = 8), '2023-08-01'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 9),
+        (SELECT $node_id FROM Subjects WHERE id = 9), '2023-09-01'),
+       ((SELECT $node_id FROM CourseMates WHERE id = 10),
+        (SELECT $node_id FROM Subjects WHERE id = 10), '2023-10-01');
+GO
 
 
 
+--5
+-- Запрос 1: Найти всех одноклассников, которые дружат с Иваном Ивановым
+SELECT c2.name
+FROM Classmates c1, FriendsWith f, Classmates c2
+WHERE MATCH(c1-(f)->c2)
+AND c1.name = 'Иван Иванов';
+
+-- Запрос 2: Найти всех студентов, рекомендующих предмет "Алгебра"
+SELECT cm.name
+FROM CourseMates cm, RecommendsSubject rs, Subjects s
+WHERE MATCH(cm-(rs)->s)
+AND s.name = 'Алгебра';
+
+-- Запрос 3: Найти всех студентов, проживающих в Москве
+SELECT cm.name
+FROM CourseMates cm
+JOIN LivesIn l ON cm.$node_id = l.$from_id
+WHERE l.city = 'Москва';
+GO
+
+-- Запрос 4: Найти всех студентов, которые рекомендуют учебные дисциплины
+SELECT cm.name, s.name AS subject
+FROM CourseMates cm, RecommendsSubject rs, Subjects s
+WHERE MATCH(cm-(rs)->s);
+GO
+
+-- Запрос 5: Найти все города, в которых проживают студенты
+SELECT DISTINCT l.city
+FROM CourseMates cm
+JOIN LivesIn l ON cm.$node_id = l.$from_id;
+GO
+
+--6
+-- Запрос 1: Найти кратчайший путь от студента до его города проживания
+SELECT Person1.name AS StudentName,
+       STRING_AGG(City.city, '->') WITHIN GROUP (GRAPH PATH) AS ShortestPath
+FROM CourseMates AS Person1,
+     LivesIn FOR PATH AS City
+WHERE MATCH(SHORTEST_PATH(Person1(-(City)->())+))
+  AND Person1.name = 'Андрей Иванов';
+GO
+
+-- Запрос 2: Найти кратчайший путь от студента до рекомендованного предмета через "рекомендует учебную дисциплину"
+SELECT Person1.name AS StudentName,
+       STRING_AGG(Subject.name, '->') WITHIN GROUP (GRAPH PATH) AS RecommendedPath
+FROM CourseMates AS Person1,
+     RecommendsSubject FOR PATH AS rs,
+     Subjects FOR PATH AS Subject
+WHERE MATCH(SHORTEST_PATH(Person1(-(rs)->Subject)+))
+  AND Person1.name = 'Андрей Иванов';
+GO
 
 
-SELECT P1.ID IdFirst
-       , P1.name AS First
-       , CONCAT (N'groups',P1.id) AS [First image name]
-       , P2.ID AS IdSecond
-       , P2.name AS Second
-       , CONCAT(N'subject', P2.id) AS [Second image name]
-FROM dbo.Teachers AS P1
-    , dbo.Teaches AS F
-    , dbo.Subjects AS P2
-WHERE MATCH (P1-(F)->P2)
+--ВИЗУАЛИЗАЦИЯ ГРАФА В POWER BI С ПОМОЩЬЮ FORCE-DIRECTED GRAPH
+SELECT @@SERVERNAME
+-- Сервер:DESKTOP-LVK19RB
+-- База данных: EducationalNetwork
+
+--Запрос для получения связей между одноклассниками
+SELECT C1.ID IdFirst
+ , C1.name AS First
+ , CONCAT(N'classmate',C1.id) AS [First image name]
+ , C2.ID AS IdSecond
+ , C2.name AS Second
+ , CONCAT(N'classmate',C2.id) AS [Second image name]
+FROM dbo.Classmates AS C1
+ , dbo.FriendsWith AS F
+ , dbo.Classmates AS C2
+WHERE MATCH (C1-(F)->C2)
+
+--Запрос для получения связей между сокурсниками и учебными дисциплинами, которые им рекомендуют:
+SELECT CM.id AS CourseMateId,
+       CM.name AS CourseMateName,
+       CONCAT(N'coursemate', CM.id) AS [CourseMate image name],
+       S.id AS SubjectId,
+       S.name AS SubjectName,
+       CONCAT(N'subject', S.id) AS [Subject image name]
+FROM CourseMates AS CM, RecommendsSubject AS RS, Subjects AS S
+WHERE MATCH (CM-(RS)->S);
+
+-- Запрос для получения связей между сокурсниками и городами, в которых они живут
+SELECT CM.id AS CourseMateId,
+       CM.name AS CourseMateName,
+       CONCAT(N'coursemate', CM.id) AS [CourseMate image name],
+       LI.city AS City
+FROM CourseMates AS CM
+JOIN LivesIn AS LI ON CM.$node_id = LI.$from_id;
